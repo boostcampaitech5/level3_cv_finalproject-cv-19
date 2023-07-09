@@ -115,3 +115,6 @@ __MACOSX/
 Multilingual-CLIP/
 motis_weight/
 pycocoDemo.ipynb
+weights/
+natural-language-image-search/
+feature_store/
