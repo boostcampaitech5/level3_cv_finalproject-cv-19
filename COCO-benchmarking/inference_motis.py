@@ -23,13 +23,14 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # Conventional args
-    parser.add_argument("--model", type=str, default="clip", help="which model to use for feature extract")
+    parser.add_argument("--model", type=str, default="motis", help="which model to use for feature extract")
     parser.add_argument("--data_path", type=str, default="/opt/ml/MS-COCO/val2017", help="data path to use")
     parser.add_argument("--label_path", type=str, default="/opt/ml/MS-COCO/annotations/captions_val2017.json", help="label path to use")
     parser.add_argument("--batch_size", type=int, default=1, help="input batch size for validing (default: 1000)")
-    parser.add_argument("--num_compare", type=int, default=5, help="top-k Acc")
+    parser.add_argument("--num_compare", type=int, default=10, help="top-k Acc")
 
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--device", default="cpu") 
+    # "cuda" if torch.cuda.is_available() else "cpu" 
 
     args = parser.parse_args()
     print(args)
@@ -41,13 +42,11 @@ def parse_args():
 def compute_clip_features(photos_batch, model, preprocess):
     # Load all the photos from the files
     photos = [Image.open(photo_file) for photo_file in photos_batch]
-
-    # Preprocess all photos
-    photos_preprocessed = torch.stack([preprocess(photo) for photo in photos]).to(args.device)
+    photos_preprocessed = torch.stack([preprocess(photo) for photo in photos]).to(args.device)  # torch.Size([32, 3, 224, 224])
 
     with torch.no_grad():
         # Encode the photos batch to compute the feature vectors and normalize them
-        photos_features = model.encode_image(photos_preprocessed)
+        photos_features = model(photos_preprocessed)
         photos_features /= photos_features.norm(dim=-1, keepdim=True)
 
     # Transfer the feature vectors back to the CPU and convert to numpy
@@ -111,15 +110,17 @@ def extract_coco_features(feature_path, model, preprocess):
 def main(args):
     # Load the open CLIP model
     device = args.device
-    model, preprocess = clip.load("ViT-B/32", device=device)
-    model.eval()
+    _, preprocess = clip.load("ViT-B/32", device=device)
+
+    vision_model = torch.jit.load("./weights/motis/final_visual.pt").to(device).eval()  # Vision Transformer
+    text_model = torch.jit.load("./weights/motis/final_text_encoder_4.pt").to(device).eval()  # Text Transformer
 
     # Load the photo IDs
     feature_path = Path("/opt/ml/level3_cv_finalproject-cv-19/COCO-benchmarking/feature_store") / args.model
 
     # Pre-compute image DB features
     if not feature_path.is_dir():
-        extract_coco_features(feature_path, model, preprocess)
+        extract_coco_features(feature_path, vision_model, preprocess)
 
     photo_ids = pd.read_csv(os.path.join(feature_path, "photo_ids.csv"))
     photo_ids = list(photo_ids["photo_id"])
@@ -146,7 +147,7 @@ def main(args):
     with torch.no_grad():
         for idx, (target, captions) in enumerate(tqdm(dataloader)):
             # Encode and normalize the search query using CLIP
-            text_encoded = model.encode_text(clip.tokenize(captions[0]).to(device))  # torch.Size([5, 512])
+            text_encoded = text_model(clip.tokenize(captions[0]).to(device))  # torch.Size([5, 512])
             text_encoded /= text_encoded.norm(dim=-1, keepdim=True)
 
             # Compute the similarity between the search query and each photo using the Cosine similarity
