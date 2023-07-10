@@ -1,3 +1,4 @@
 transformers
 ftfy==5.8
 matplotlib
+torch==2.0.0
