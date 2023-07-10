@@ -112,9 +112,8 @@ saved/
 __MACOSX/
 
 # dummy folders
-Multilingual-CLIP/
+tmp/
 motis_weight/
 pycocoDemo.ipynb
 weights/
-natural-language-image-search/
 feature_store/
