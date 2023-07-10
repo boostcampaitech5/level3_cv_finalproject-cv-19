@@ -112,6 +112,8 @@ saved/
 __MACOSX/
 
 # dummy folders
-Multilingual-CLIP/
+tmp/
 motis_weight/
 pycocoDemo.ipynb
+weights/
+feature_store/
