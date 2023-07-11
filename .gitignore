@@ -115,3 +115,6 @@ __MACOSX/
 Multilingual-CLIP/
 motis_weight/
 pycocoDemo.ipynb
+
+nohup.out
+models/
