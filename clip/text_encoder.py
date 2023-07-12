@@ -57,4 +57,4 @@ def TextEncoder(text):
     with torch.no_grad():
         language_emb = text_model(text)  # torch.Size([1, 512])
     # print(json.dumps(language_emb.tolist()))
-    return language_emb.tolist()
+    return torch.t(language_emb).tolist()
