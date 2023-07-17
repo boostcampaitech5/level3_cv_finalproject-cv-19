@@ -117,3 +117,6 @@ motis_weight/
 pycocoDemo.ipynb
 weights/
 feature_store/
+ImageNetV2-matched-frequency/
+ImageNetV2-matched-frequency.tar.gz
+CLIP-imagenet-evaluation/

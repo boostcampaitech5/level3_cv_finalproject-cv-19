@@ -6,16 +6,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
-from dataset import MyDataset
 from PIL import Image
 from tqdm import tqdm
-from utils import ensure_dir
 
 import clip
 
 """
-COCO-caption text를 가지고 전체 val image와의 유사도를 계산했을 때, top-10 acc를 측정
-MoTis, CLIP 등 모델 별 성능 benchmarking
+user input query에 대해서 결과를 검색하는 코드
+DB는 MS-COCO validation set으로 구성, benchmarking과 마찬가지로 feature store를 뽑아 놓고 가져와서 사용
 """
 
 
@@ -23,12 +21,10 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # Conventional args
-    parser.add_argument("--model", type=str, default="clip_RN50", help="which model to use for feature extract")
+    parser.add_argument("--model", type=str, default="clip", help="which model to use for feature extract")
     parser.add_argument("--data_path", type=str, default="/opt/ml/MS-COCO/val2017", help="data path to use")
-    parser.add_argument("--label_path", type=str, default="/opt/ml/MS-COCO/annotations/captions_val2017.json", help="label path to use")
-    # eng_re_translated_captions_val2017 eng_re_translated_captions_val2017_3 captions_val2017
+
     parser.add_argument("--batch_size", type=int, default=1, help="input batch size for validing (default: 1000)")
-    parser.add_argument("--num_compare", type=int, default=10, help="top-k Acc")
 
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
 
@@ -112,7 +108,7 @@ def extract_coco_features(feature_path, model, preprocess):
 def main(args):
     # Load the open CLIP model
     device = args.device
-    model, preprocess = clip.load("RN50", device=device)
+    model, preprocess = clip.load("ViT-B/32", device=device)
     model.eval()
 
     # Load the photo IDs
@@ -167,7 +163,7 @@ def main(args):
             total += len(id_exist)
 
     accuracy = correct / total * 100
-    print(f"Acc: {accuracy:.2f}%")
+    print(f"Acc: {accuracy:.3f}%")
 
 
 # python inference.py

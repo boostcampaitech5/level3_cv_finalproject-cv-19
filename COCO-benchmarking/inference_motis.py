@@ -25,10 +25,10 @@ def parse_args():
     # Conventional args
     parser.add_argument("--model", type=str, default="motis", help="which model to use for feature extract")
     parser.add_argument("--data_path", type=str, default="/opt/ml/MS-COCO/val2017", help="data path to use")
-    parser.add_argument("--label_path", type=str, default="/opt/ml/MS-COCO/annotations/captions_val2017.json", help="label path to use")
+    parser.add_argument("--label_path", type=str, default="/opt/ml/MS-COCO/annotations/eng_re_translated_captions_val2017_3.json", help="label path to use")
     parser.add_argument("--batch_size", type=int, default=1, help="input batch size for validing (default: 1000)")
-    parser.add_argument("--num_compare", type=int, default=10, help="top-k Acc")
-
+    parser.add_argument("--num_compare", type=int, default=100, help="top-k Acc")
+    # 100, 5, eng_re_translated_captions_val2017_3 :5, 10
     parser.add_argument("--device", default="cpu") 
     # "cuda" if torch.cuda.is_available() else "cpu" 
 

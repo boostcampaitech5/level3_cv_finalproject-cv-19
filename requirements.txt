@@ -3,10 +3,12 @@ matplotlib==3.3.4
 numpy==1.19.5
 pandas==1.1.5
 pycocotools==2.0.6
-torch==1.7.1+cu110
-torchvision==0.8.2+cu110
+# torch==1.7.1+cu110
+# torchvision==0.8.2+cu110
 transformers
 ftfy==5.8
-
+torchsummary
 
 # pip install git+https://github.com/openai/CLIP.git
+# pip install ftfy regex tqdm
+# pip install git+https://github.com/modestyachts/ImageNetV2_pytorch

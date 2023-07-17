@@ -1,22 +1,14 @@
 import os
 from glob import glob
 
-import clip
 import torch
 from PIL import Image
+
+import clip
 
 # model, 전처리 로드
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
-
-# print(preprocess)
-# Compose(
-#     Resize(size=224, interpolation=PIL.Image.BICUBIC)
-#     CenterCrop(size=(224, 224))
-#     <function _convert_image_to_rgb at 0x7f2014a336a8>
-#     ToTensor()
-#     Normalize(mean=(0.48145466, 0.4578275, 0.40821073), std=(0.26862954, 0.26130258, 0.27577711))
-# )
 
 
 # 폴더 내의 jpg 이미지 파일들을 찾기 위한 경로 패턴
