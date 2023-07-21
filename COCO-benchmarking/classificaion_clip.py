@@ -27,13 +27,23 @@ def parse_args():
     # openai-clip ['RN50', 'RN101', 'RN50x4', 'RN50x16','RN50x64', 'ViT-B/32', 'ViT-B/16', 'ViT-L/14', 'ViT-L/14@336px']
     # huggingface-clip ./weights/clip/traced_visual_model.pt ./weights/clip/traced_text_model.pt
     # motis ./weights/motis/final_visual.pt ./weights/motis/final_text_encoder_4.pt
-    parser.add_argument("--model", type=str, default="openai-clip", help="which model to use for feature extract")
-    parser.add_argument("--load_ckpt", type=str2bool, default=False, help="determine whether load model from checkpoint")
+    parser.add_argument("--model", type=str, default="huggingface-clip", help="which model to use for feature extract")
+    parser.add_argument("--load_ckpt", type=str2bool, default=True, help="determine whether load model from checkpoint")
 
-    parser.add_argument("--visual_path", type=str, default=None, help="visual model weight path")
-    parser.add_argument("--text_path", type=str, default=None, help="text model weight path")
+    parser.add_argument(
+        "--visual_path",
+        type=str,
+        default="/opt/ml/level3_cv_finalproject-cv-19/clip_compression/weight/visual_DQ_int8_cpu.pt",
+        help="visual model weight path",
+    )
+    parser.add_argument(
+        "--text_path",
+        type=str,
+        default="/opt/ml/level3_cv_finalproject-cv-19/clip_compression/weight/clip_text_cpu.pt",
+        help="text model weight path",
+    )
     parser.add_argument("--batch_size", type=int, default=32, help="input batch size for validing (default: 1000)")
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--device", default="cpu")  # "cuda" if torch.cuda.is_available() else "cpu"
     args = parser.parse_args()
     print(args)
 
@@ -85,11 +95,12 @@ def main(args):
     # Load the open CLIP model
     # ['RN50', 'RN101', 'RN50x4', 'RN50x16','RN50x64', 'ViT-B/32', 'ViT-B/16', 'ViT-L/14', 'ViT-L/14@336px']
     if args.model == "openai-clip":
-        model, _ = clip.load("RN50")
+        model, _ = clip.load("ViT-B/32")
         model.to(args.device).eval()
 
     elif args.model == "huggingface-clip":
         if args.load_ckpt:
+            args.device = "cpu"
             vision_model = torch.jit.load(args.visual_path).to(args.device).eval()  # Vision Transformer
             text_model = torch.jit.load(args.text_path).to(args.device).eval()  # Text Transformer
         else:

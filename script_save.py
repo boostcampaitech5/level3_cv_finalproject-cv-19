@@ -14,7 +14,7 @@ def preprocess(image, size=224):
     return transform(image)
 
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cpu"  # "cuda" if torch.cuda.is_available() else "cpu"
 
 # ----------------- image encoding -----------------
 visual_model = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
@@ -29,7 +29,7 @@ image_embeds = out_img.image_embeds
 
 # Creating the trace
 traced_visual_model = torch.jit.trace(visual_model.to(device), processed_img.to(device), strict=False)
-torch.jit.save(traced_visual_model, "traced_visual_model.pt")
+torch.jit.save(traced_visual_model, "clip_visual.pt")
 
 
 # ----------------- text encoding -----------------
@@ -43,7 +43,16 @@ text_embeds = out_text.text_embeds
 
 # Creating the trace
 traced_text_model = torch.jit.trace(text_model.to(device), texts.to(device), strict=False)
-torch.jit.save(traced_text_model, "traced_text_model.pt")
+torch.jit.save(traced_text_model, "clip_text.pt")
 
 print("image_embeds", image_embeds.shape)
 print("text_embeds", text_embeds.shape)
+
+
+from torch.utils.mobile_optimizer import optimize_for_mobile
+
+visual_optimized_model = optimize_for_mobile(traced_visual_model)
+visual_optimized_model._save_for_lite_interpreter("clip_visual_mobile.ptl")
+
+text_optimized_model = optimize_for_mobile(traced_text_model)
+text_optimized_model._save_for_lite_interpreter("clip_text_mobile.ptl")

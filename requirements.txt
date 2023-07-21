@@ -12,3 +12,5 @@ torchsummary
 # pip install git+https://github.com/openai/CLIP.git
 # pip install ftfy regex tqdm
 # pip install git+https://github.com/modestyachts/ImageNetV2_pytorch
+# python -m pip install "optimum[openvino,nncf]"
+# python -m pip install "optimum[neural-compressor]"
