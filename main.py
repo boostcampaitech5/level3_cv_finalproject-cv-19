@@ -7,7 +7,7 @@ from glob import glob
 from typing import List, Union
 
 import torch
-from clip.text_encoder import TextEncoder
+from CLIP.text_encoder import TextEncoder
 from torchvision.transforms import CenterCrop, Compose, Normalize, Resize, ToTensor
 
 from dotenv import load_dotenv

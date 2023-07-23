@@ -3,7 +3,11 @@ from glob import glob
 from typing import List, Union
 import json
 import torch
-from clip.simple_tokenizer import SimpleTokenizer as _Tokenizer
+from CLIP.simple_tokenizer import SimpleTokenizer as _Tokenizer
+
+import clip
+from transformers import CLIPTextModelWithProjection
+
 
 __all__ = ["available_models", "load", "tokenize"]
 _tokenizer = _Tokenizer()
@@ -51,10 +55,21 @@ def tokenize(texts: Union[str, List[str]], context_length: int = 77, truncate: b
     return result
 
 def TextEncoder(text):
+    '''
+    # motis model
     device = "cpu"
     text = tokenize(text).to(device) # torch.Size([1, 77])
     text_model = torch.jit.load("motis_weight/final_text_encoder_4.pt", map_location="cpu").to(device).eval()  # Text Transformer
     with torch.no_grad():
         language_emb = text_model(text)  # torch.Size([1, 512])
     # print(json.dumps(language_emb.tolist()))
+    '''
+    
+    # clip model
+    text_model = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32").to("cuda").eval()
+
+    texts = clip.tokenize(text).to("cuda")  # tokenize
+
+    text_embeddings = text_model(texts)
+    language_emb = text_embeddings["text_embeds"]
     return torch.t(language_emb).tolist()
